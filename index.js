@@ -24,3 +24,11 @@ var titles = document.querySelectorAll('.title');
 titles[0].style.fontWeight = 'bold';
 titles[0].style.color = 'green';
 
+
+var listItems = document.getElementsByClassName('list-group-item');
+
+for(let i=0;i<listItems.length;i++){
+    listItems[i].style.fontWeight = 'bold';
+}
+listItems[2].style.backgroundColor = 'green';
+
