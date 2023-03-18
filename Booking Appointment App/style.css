@@ -30,7 +30,7 @@
   
   .container {
     margin: auto;
-    width: 500px;
+    width: 600px;
     overflow: auto;
     padding: 3rem 2rem;
   }
@@ -80,15 +80,15 @@
     margin: 5px;
   }
 
-  .deleteBtn{
+  .deleteBtn, .editBtn{
     background-color: wheat;
-    padding: 5px 10px;
+    padding: 5px 8px;
     margin-top: 0px;
     width: 20%;
     float: right;
     color: red;
   }
-  .deleteBtn:hover {
+  .deleteBtn:hover,.editBtn:hover {
     color: wheat;
     background-color: red;
 }
