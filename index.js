@@ -32,3 +32,7 @@ for(let i=0;i<listItems.length;i++){
 }
 listItems[2].style.backgroundColor = 'green';
 
+var listItemsByTagName = document.getElementsByTagName('li');
+listItemsByTagName[4].classList.add('list-group-item');
+listItemsByTagName[4].style.fontWeight = 'bold';
+
