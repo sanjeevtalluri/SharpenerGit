@@ -1,53 +1,61 @@
+var form = document.getElementById('addForm');
+var itemList = document.getElementById('items');
+var filter = document.getElementById('filter');
 
-var listItems = document.querySelector('.list-group');
-var parentOfListItems = listItems.parentElement;
-console.log(parentOfListItems);
+// Form submit event
+form.addEventListener('submit', addItem);
+// Delete event
+itemList.addEventListener('click', removeItem);
 
-var lastElementChildOfCard = parentOfListItems.lastElementChild;
-console.log(lastElementChildOfCard);
+// Add item
+function addItem(e){
+  e.preventDefault();
 
-var lastChildOfCard = parentOfListItems.lastChild;
-console.log(lastChildOfCard);
+  // Get input value
+  var newItem = document.getElementById('item').value;
 
-var firstElementChildOfCard = parentOfListItems.firstElementChild;
-console.log(firstElementChildOfCard);
+  // Create new li element
+  var li = document.createElement('li');
+  // Add class
+  li.className = 'list-group-item';
+  // Add text node with input value
+  li.appendChild(document.createTextNode(newItem));
 
-var firstChildOfCard = parentOfListItems.firstChild;
-console.log(firstChildOfCard);
+  // Create del button element
+  var deleteBtn = document.createElement('button');
 
-var nextSiblingOfListItems = listItems.nextSibling;
-console.log(nextSiblingOfListItems);
+  // Create edit button element
+  var editBtn = document.createElement('button');
 
-var nextElementSiblingOfListItems = listItems.nextElementSibling;
-console.log(nextElementSiblingOfListItems);
+  // Add classes to del button
+  deleteBtn.className = 'btn btn-danger btn-sm float-end delete';
 
-var previousSiblingOfListItems = listItems.previousSibling;
-console.log(previousSiblingOfListItems);
+  // Add classes to edit button
+  editBtn.className = 'btn btn-warning btn-sm me-4 float-end edit';
 
-var previousElementSiblingOfListItems = listItems.previousElementSibling;
-console.log(previousElementSiblingOfListItems);
+  // Append text node
+  deleteBtn.appendChild(document.createTextNode('X'));
 
-var createdDiv = document.createElement('div');
-console.log(createdDiv);
-
-var textNode = document.createTextNode('Hello world');
-createdDiv.append(textNode);
-
-previousElementSiblingOfListItems.setAttribute('id','title');
-console.log(previousElementSiblingOfListItems);
-
-var createdDiv2 = createdDiv.cloneNode(true);
-
-var createdLi = document.createElement('li');
-createdLi.className = 'list-group-item';
-var textNode2 = document.createTextNode('Hello world');
-createdLi.append(textNode2);
-
-var itemsTitle = document.querySelectorAll('.title')[1];
-parentOfListItems.insertBefore(createdDiv,itemsTitle);
-parentOfListItems.insertBefore(createdDiv2,listItems);
-listItems.insertBefore(createdLi,listItems.firstElementChild);
+  // Append text node to edit btn
+  editBtn.appendChild(document.createTextNode('Edit'));
 
 
+  // Append button to li
+  li.appendChild(deleteBtn);
 
+  // Append edit button to li
+  li.appendChild(editBtn);
 
+  // Append li to list
+  itemList.appendChild(li);
+}
+
+// Remove item
+function removeItem(e){
+  if(e.target.classList.contains('delete')){
+    if(confirm('Are You Sure?')){
+      var li = e.target.parentElement;
+      itemList.removeChild(li);
+    }
+  }
+}
