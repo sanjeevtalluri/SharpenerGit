@@ -4,8 +4,10 @@
 const myForm = document.querySelector('#my-form');
 const nameInput = document.querySelector('#name');
 const emailInput = document.querySelector('#email');
+const phoneInput = document.querySelector('#phone');
 const msg = document.querySelector('.msg');
 const userList = document.querySelector('#users');
+
 if (!localStorage.hasOwnProperty('items')) {
     localStorage.setItem('items', "");
 }
@@ -17,7 +19,7 @@ function init() {
     if (items.length) {
         let itemsArray = JSON.parse(items);
         itemsArray.forEach(item => {
-            createItemAndAppendToList(item.name, item.email);
+            createItemAndAppendToList(item.name, item.email,item.phone);
         });
     }
 }
@@ -26,10 +28,12 @@ function init() {
 // Listen for form submit
 myForm.addEventListener('submit', onSubmit);
 
+userList.addEventListener('click', onDelete);
+
 function onSubmit(e) {
     e.preventDefault();
 
-    if (nameInput.value === '' || emailInput.value === '') {
+    if (nameInput.value === '' || emailInput.value === '' || phoneInput.value === '') {
         // alert('Please enter all fields');
         msg.classList.add('error');
         msg.innerHTML = 'Please enter all fields';
@@ -37,19 +41,47 @@ function onSubmit(e) {
         // Remove error after 3 seconds
         setTimeout(() => msg.remove(), 3000);
     } else {
-        createItemAndAppendToList(nameInput.value, emailInput.value);
-        addToLocalStorage(nameInput.value, emailInput.value);
+        createItemAndAppendToList(nameInput.value, emailInput.value,phoneInput.value);
+        addToLocalStorage(nameInput.value, emailInput.value,phoneInput.value);
         // Clear fields
         nameInput.value = '';
         emailInput.value = '';
+        phoneInput.value = '';
     }
 }
 
-function createItemAndAppendToList(name, email) {
+function onDelete(e) {
+    e.preventDefault();
+    if (e.target.classList.contains('deleteBtn')) {
+        let isConfirmedToDelete = confirm('Do you want to delete the item');
+        if (isConfirmedToDelete) {
+            let liElement = e.target.parentElement;
+            userList.removeChild(liElement);
+            let email = liElement.children[0].children[1].textContent;
+            // O(n) not recommended
+            removeItemFromLocalStorage(email);
+        }
+    }
+
+}
+
+
+function createItemAndAppendToList(name, email,phone) {
     const li = document.createElement('li');
 
-    // Add text node with input values
-    li.appendChild(document.createTextNode(`${name}: ${email}`));
+    const liDiv = document.createElement('div');
+    const nameParaElement = createNewDomElementWithValue('p',name);
+    const emailParaElement = createNewDomElementWithValue('p',email);
+    const phoneParaElement = createNewDomElementWithValue('p',phone);
+    liDiv.appendChild(nameParaElement);
+    liDiv.appendChild(emailParaElement);
+    liDiv.appendChild(phoneParaElement);
+    li.appendChild(liDiv);
+    const deleteBtn = document.createElement('input');
+    deleteBtn.value = 'Delete';
+    deleteBtn.setAttribute('type', 'button');
+    deleteBtn.className = 'btn deleteBtn';
+    li.appendChild(deleteBtn);
 
 
     // Append to ul
@@ -57,16 +89,36 @@ function createItemAndAppendToList(name, email) {
 
 }
 
-function addToLocalStorage(name,email) {
+function addToLocalStorage(name, email,phone) {
     let localStorageItems = localStorage.getItem('items');
-    if(localStorageItems)
-    localStorageItems = JSON.parse(localStorageItems);
+    if (localStorageItems)
+        localStorageItems = JSON.parse(localStorageItems);
     else
-    localStorageItems = [];
+        localStorageItems = [];
     localStorageItems.push({
         name: name,
-        email: email
+        email: email,
+        phone:phone
     })
     localStorageItems = JSON.stringify(localStorageItems);
-    localStorage.setItem('items',localStorageItems);
+    localStorage.setItem('items', localStorageItems);
+}
+
+function removeItemFromLocalStorage(email){
+    let localStorageItems = localStorage.getItem('items');
+    if (localStorageItems)
+        localStorageItems = JSON.parse(localStorageItems);
+    else
+        localStorageItems = [];
+    localStorageItems = localStorageItems.filter((item)=>{
+        return item.email != email;
+    })
+    localStorageItems = JSON.stringify(localStorageItems);
+    localStorage.setItem('items', localStorageItems);
+}
+
+function createNewDomElementWithValue(element,value){
+    var domElement = document.createElement(element);
+    domElement.textContent = value;
+    return domElement;
 }
