@@ -31,7 +31,7 @@ function onSubmit(e) {
         setTimeout(() => msg.remove(), 3000);
     } else {
         addUserToCrud(nameInput.value,emailInput.value,phoneInput.value);
-        createItemAndAppendToList(nameInput.value, emailInput.value, phoneInput.value);
+       
         // Clear fields
         nameInput.value = '';
         emailInput.value = '';
@@ -46,7 +46,7 @@ function addUserToCrud(name,email,phone) {
         phone: phone
     })
     .then((res) => {
-        console.log(res);
+        createItemAndAppendToList(name, email, phone,res.data._id);
     })
     .catch(err=>{
         console.log(err);
@@ -56,13 +56,25 @@ function addUserToCrud(name,email,phone) {
 function getUsersFromCurd(){
     axios.get(baseUrl).then((res) => {
         res.data.forEach(item=>{
-            createItemAndAppendToList(item.name, item.email, item.phone);
+            createItemAndAppendToList(item.name, item.email, item.phone,item._id);
         })
     })
     .catch(err=>{
         console.log(err);
     })
 }
+
+
+function deleteUserFromCrud(liElement){
+    const id = liElement.getAttribute('apiId');
+    axios.delete(`${baseUrl}/${id}`).then((res) => {
+        remove(liElement);
+    })
+    .catch(err=>{
+        console.log(err);
+    })
+}
+
 function onDelete(e) {
     e.preventDefault();
 
@@ -70,7 +82,7 @@ function onDelete(e) {
         let isConfirmedToDelete = confirm('Do you want to delete the item');
         if (isConfirmedToDelete) {
             let liElement = e.target.parentElement;
-            remove(liElement);
+            deleteUserFromCrud(liElement);
         }
     }
     else if (e.target.classList.contains('editBtn')) {
@@ -93,7 +105,7 @@ function populateValuesInForm(name, email, phone) {
 }
 
 
-function createItemAndAppendToList(name, email, phone) {
+function createItemAndAppendToList(name, email, phone, id) {
     const li = document.createElement('li');
 
     const liDiv = document.createElement('div');
@@ -114,7 +126,7 @@ function createItemAndAppendToList(name, email, phone) {
     editBtn.className = 'btn editBtn';
     li.appendChild(editBtn);
     li.appendChild(deleteBtn);
-
+    li.setAttribute('apiId',id);
     // Append to ul
     userList.appendChild(li);
 
