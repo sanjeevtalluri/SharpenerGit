@@ -7,10 +7,13 @@ const emailInput = document.querySelector('#email');
 const phoneInput = document.querySelector('#phone');
 const msg = document.querySelector('.msg');
 const userList = document.querySelector('#users');
-const baseUrl = "https://crudcrud.com/api/9656bec683a843bfa1f3c9a7d855a09a/appointments";
+const baseUrl = "https://crudcrud.com/api/9656bec683a843bfa1f3c9a7d855a09a/appointmentsData";
+let edit = false;
+let editId = "";
+let editLiElement = null;
 
 
-window.addEventListener("DOMContentLoaded",()=>{
+window.addEventListener("DOMContentLoaded", () => {
     getUsersFromCurd();
 })
 
@@ -30,8 +33,13 @@ function onSubmit(e) {
         // Remove error after 3 seconds
         setTimeout(() => msg.remove(), 3000);
     } else {
-        addUserToCrud(nameInput.value,emailInput.value,phoneInput.value);
-       
+        if (edit) {
+            UpdateUserFromCrud(editId, nameInput.value, emailInput.value, phoneInput.value, editLiElement);
+        }
+        else {
+            addUserToCrud(nameInput.value, emailInput.value, phoneInput.value);
+        }
+
         // Clear fields
         nameInput.value = '';
         emailInput.value = '';
@@ -39,41 +47,60 @@ function onSubmit(e) {
     }
 }
 
-function addUserToCrud(name,email,phone) {
+function addUserToCrud(name, email, phone) {
     axios.post(baseUrl, {
         name: name,
         email: email,
         phone: phone
     })
-    .then((res) => {
-        createItemAndAppendToList(name, email, phone,res.data._id);
-    })
-    .catch(err=>{
-        console.log(err);
-    })
+        .then((res) => {
+            createItemAndAppendToList(name, email, phone, res.data._id);
+        })
+        .catch(err => {
+            console.log(err);
+        })
 }
 
-function getUsersFromCurd(){
+function getUsersFromCurd() {
     axios.get(baseUrl).then((res) => {
-        res.data.forEach(item=>{
-            createItemAndAppendToList(item.name, item.email, item.phone,item._id);
+        res.data.forEach(item => {
+            createItemAndAppendToList(item.name, item.email, item.phone, item._id);
         })
     })
-    .catch(err=>{
-        console.log(err);
-    })
+        .catch(err => {
+            console.log(err);
+        })
 }
 
 
-function deleteUserFromCrud(liElement){
+function deleteUserFromCrud(liElement) {
     const id = liElement.getAttribute('apiId');
     axios.delete(`${baseUrl}/${id}`).then((res) => {
         remove(liElement);
     })
-    .catch(err=>{
-        console.log(err);
-    })
+        .catch(err => {
+            console.log(err);
+        })
 }
+
+function UpdateUserFromCrud(id, name, email, phone, liElement) {
+    axios.put(`${baseUrl}/${id}`, {
+        name: name,
+        email: email,
+        phone: phone
+    }).then((res) => {
+        remove(liElement);
+        createItemAndAppendToList(name, email, phone, id);
+        edit = false;
+        editId = "";
+        editLiElement = null;
+
+    })
+        .catch(err => {
+            console.log(err);
+        })
+}
+
 
 function onDelete(e) {
     e.preventDefault();
@@ -87,9 +114,11 @@ function onDelete(e) {
     }
     else if (e.target.classList.contains('editBtn')) {
         let liElement = e.target.parentElement;
-        remove(liElement);
-        populateValuesInForm(liElement.children[0].children[0].textContent, liElement.children[0].children[1].textContent,
-            liElement.children[0].children[2].textContent);
+        let name = liElement.children[0].children[0].textContent;
+        let email = liElement.children[0].children[1].textContent;
+        let phone = liElement.children[0].children[2].textContent;
+        let id = liElement.getAttribute('apiId');
+        populateValuesInForm(id, name, email, phone, liElement);
     }
 
 }
@@ -98,10 +127,13 @@ function remove(liElement) {
     userList.removeChild(liElement);
 }
 
-function populateValuesInForm(name, email, phone) {
+function populateValuesInForm(id, name, email, phone, liElement) {
     nameInput.value = name;
     emailInput.value = email;
     phoneInput.value = phone;
+    editId = id;
+    edit = true;
+    editLiElement = liElement;
 }
 
 
@@ -126,7 +158,7 @@ function createItemAndAppendToList(name, email, phone, id) {
     editBtn.className = 'btn editBtn';
     li.appendChild(editBtn);
     li.appendChild(deleteBtn);
-    li.setAttribute('apiId',id);
+    li.setAttribute('apiId', id);
     // Append to ul
     userList.appendChild(li);
 
