@@ -1,0 +1,16 @@
+.action-buttons .edit-button{
+    color: green;
+}
+.action-buttons .delete-button{
+    color: red;
+}
+.table-done th{
+    width: 50%;
+}
+.table-rem th{
+    width: 40%;
+}
+
+.table-rem th:nth-child(3){
+    width: 20%;
+}
