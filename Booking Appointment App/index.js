@@ -10,10 +10,9 @@ const userList = document.querySelector('#users');
 const baseUrl = "https://crudcrud.com/api/9656bec683a843bfa1f3c9a7d855a09a/appointments";
 
 
-
-getUsersFromCurd();
-
-
+window.addEventListener("DOMContentLoaded",()=>{
+    getUsersFromCurd();
+})
 
 // Listen for form submit
 myForm.addEventListener('submit', onSubmit);
