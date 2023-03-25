@@ -7,22 +7,12 @@ const emailInput = document.querySelector('#email');
 const phoneInput = document.querySelector('#phone');
 const msg = document.querySelector('.msg');
 const userList = document.querySelector('#users');
+const baseUrl = "https://crudcrud.com/api/9656bec683a843bfa1f3c9a7d855a09a/appointments";
 
-if (!localStorage.hasOwnProperty('items')) {
-    localStorage.setItem('items', "");
-}
-var items = localStorage.getItem('items');
 
-init();
 
-function init() {
-    if (items.length) {
-        let itemsArray = JSON.parse(items);
-        itemsArray.forEach(item => {
-            createItemAndAppendToList(item.name, item.email, item.phone);
-        });
-    }
-}
+getUsersFromCurd();
+
 
 
 // Listen for form submit
@@ -41,8 +31,8 @@ function onSubmit(e) {
         // Remove error after 3 seconds
         setTimeout(() => msg.remove(), 3000);
     } else {
+        addUserToCrud(nameInput.value,emailInput.value,phoneInput.value);
         createItemAndAppendToList(nameInput.value, emailInput.value, phoneInput.value);
-        addToLocalStorage(nameInput.value, emailInput.value, phoneInput.value);
         // Clear fields
         nameInput.value = '';
         emailInput.value = '';
@@ -50,9 +40,33 @@ function onSubmit(e) {
     }
 }
 
+function addUserToCrud(name,email,phone) {
+    axios.post(baseUrl, {
+        name: name,
+        email: email,
+        phone: phone
+    })
+    .then((res) => {
+        console.log(res);
+    })
+    .catch(err=>{
+        console.log(err);
+    })
+}
+
+function getUsersFromCurd(){
+    axios.get(baseUrl).then((res) => {
+        res.data.forEach(item=>{
+            createItemAndAppendToList(item.name, item.email, item.phone);
+        })
+    })
+    .catch(err=>{
+        console.log(err);
+    })
+}
 function onDelete(e) {
     e.preventDefault();
-    
+
     if (e.target.classList.contains('deleteBtn')) {
         let isConfirmedToDelete = confirm('Do you want to delete the item');
         if (isConfirmedToDelete) {
@@ -63,7 +77,7 @@ function onDelete(e) {
     else if (e.target.classList.contains('editBtn')) {
         let liElement = e.target.parentElement;
         remove(liElement);
-        populateValuesInForm(liElement.children[0].children[0].textContent,liElement.children[0].children[1].textContent,
+        populateValuesInForm(liElement.children[0].children[0].textContent, liElement.children[0].children[1].textContent,
             liElement.children[0].children[2].textContent);
     }
 
@@ -71,12 +85,9 @@ function onDelete(e) {
 
 function remove(liElement) {
     userList.removeChild(liElement);
-    let email = liElement.children[0].children[1].textContent;
-    // O(n) not recommended
-    removeItemFromLocalStorage(email);
 }
 
-function populateValuesInForm(name,email,phone){
+function populateValuesInForm(name, email, phone) {
     nameInput.value = name;
     emailInput.value = email;
     phoneInput.value = phone;
@@ -101,7 +112,7 @@ function createItemAndAppendToList(name, email, phone) {
     const editBtn = document.createElement('input');
     editBtn.value = 'Edit';
     editBtn.setAttribute('type', 'button');
-    editBtn.className = 'btn editBtn';  
+    editBtn.className = 'btn editBtn';
     li.appendChild(editBtn);
     li.appendChild(deleteBtn);
 
@@ -110,33 +121,6 @@ function createItemAndAppendToList(name, email, phone) {
 
 }
 
-function addToLocalStorage(name, email, phone) {
-    let localStorageItems = localStorage.getItem('items');
-    if (localStorageItems)
-        localStorageItems = JSON.parse(localStorageItems);
-    else
-        localStorageItems = [];
-    localStorageItems.push({
-        name: name,
-        email: email,
-        phone: phone
-    })
-    localStorageItems = JSON.stringify(localStorageItems);
-    localStorage.setItem('items', localStorageItems);
-}
-
-function removeItemFromLocalStorage(email) {
-    let localStorageItems = localStorage.getItem('items');
-    if (localStorageItems)
-        localStorageItems = JSON.parse(localStorageItems);
-    else
-        localStorageItems = [];
-    localStorageItems = localStorageItems.filter((item) => {
-        return item.email != email;
-    })
-    localStorageItems = JSON.stringify(localStorageItems);
-    localStorage.setItem('items', localStorageItems);
-}
 
 function createNewDomElementWithValue(element, value) {
     var domElement = document.createElement(element);
