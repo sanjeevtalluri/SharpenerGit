@@ -7,7 +7,7 @@ const emailInput = document.querySelector('#email');
 const phoneInput = document.querySelector('#phone');
 const msg = document.querySelector('.msg');
 const userList = document.querySelector('#users');
-const baseUrl = "https://retoolapi.dev/GdQL1h/data";
+const baseUrl = "http://localhost:3000/users";
 let edit = false;
 let editId = "";
 let editLiElement = null;
@@ -50,7 +50,7 @@ function onSubmit(e) {
 async function addUserToCrud(name, email, phone) {
     let res = null;
     try {
-        res = await axios.post(baseUrl, {
+        res = await axios.post(baseUrl + "/addUser", {
             name: name,
             email: email,
             phone: phone
@@ -66,7 +66,7 @@ async function addUserToCrud(name, email, phone) {
 async function getUsersFromCurd() {
     let res = null;
     try {
-        res = await axios.get(baseUrl);
+        res = await axios.get(baseUrl + "/getUsers");
         res.data.forEach(item => {
             createItemAndAppendToList(item.name, item.email, item.phone, item.id);
         })
@@ -81,7 +81,7 @@ async function getUsersFromCurd() {
 async function deleteUserFromCrud(liElement) {
     const id = liElement.getAttribute('apiId');
     try {
-        await axios.delete(`${baseUrl}/${id}`)
+        await axios.delete(`${baseUrl}/deleteUser/${id}`)
         remove(liElement);
     }
     catch (err) {
@@ -90,25 +90,24 @@ async function deleteUserFromCrud(liElement) {
 }
 
 async function UpdateUserFromCrud(id, name, email, phone, liElement) {
-    let res = null;
     try {
-        res = await axios.put(`${baseUrl}/${id}`, {
+        console.log('in');
+        await axios.put(`${baseUrl}/updateUser/${id}`, {
             name: name,
             email: email,
             phone: phone
         })
+        remove(liElement);
+        createItemAndAppendToList(name, email, phone, id);
+        edit = false;
+        editId = "";
+        editLiElement = null;  
     }
     catch (err) {
         console.log(err);
     }
 
-    if(res){
-        remove(liElement);
-        createItemAndAppendToList(name, email, phone, id);
-        edit = false;
-        editId = "";
-        editLiElement = null;
-    }
+
 }
 
 
@@ -128,6 +127,7 @@ function onDelete(e) {
         let email = liElement.children[0].children[1].textContent;
         let phone = liElement.children[0].children[2].textContent;
         let id = liElement.getAttribute('apiId');
+        console.log(id);
         populateValuesInForm(id, name, email, phone, liElement);
     }
 
